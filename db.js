@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGO_URL);
-console.log("Database Connection Successfully Established!");
-
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.ObjectId;
 
