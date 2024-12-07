@@ -9,8 +9,8 @@ const { adminRouter } = require('./routes/admin');
 app.use(express.json());
 
 
-app.use("/user" , userRouter);
-app.use("/course" , courseRouter);
-app.use('/admin' , adminRouter);
+app.use("api/v1/user" , userRouter);
+app.use('api/v1/admin' , adminRouter);
+app.use("api/v1/course" , courseRouter);
 
 app.listen(PORT);
