@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { z } = require('zod');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { UserModel } = require('../db');
 
 const userRouter = Router();
@@ -56,7 +57,59 @@ userRouter.post('/signup' , async (req , res) => {
     }
 });
 
-userRouter.post('/login' , (req , res) => {});
+userRouter.post('/login' , async (req , res) => {
+    const requiredBody = z.object({
+        username: z.string().min(3).max(10),
+        password: z.string().min(2).max(100)
+    });
+
+    // parse the req.body
+
+    const parsedDataWithSuccess = requiredBody.safeParse(req.body);
+
+    if (!parsedDataWithSuccess.success) {
+        res.status(400).json({
+            msg: "Invalid Format",
+            error: parsedDataWithSuccess.error.issues
+        })
+        return
+    }
+    // UPTILL THIS POINT, ITS INPUT VALIDATION!
+
+    const username = req.body.username;
+    const password = req.body.password;
+
+    const user = await UserModel.findOne({
+        username: username
+    })
+
+    if (!user) {
+        res.status(403).json({
+            msg: `User with Username:${username} does not exists in our database!`
+        })
+        return
+    }
+
+    const decryptedPassword = await bcrypt.compare(password , user.password);
+
+    if (!decryptedPassword) { // If password doesnt matched!
+        res.status(403).json({
+            message: "User Not Found, Incorrect Credentials Provided!!!"
+        });
+    }
+    else { // IF user found -> allot a JWT and login
+        const token = jwt.sign({
+            id: user._id.toString()
+        } , process.env.JWT_SECRET);
+
+        res.json({
+            msg: `${user.username} successfully LoggedIN!!`,
+            username: user.username,
+            email: user.email,
+            token: token
+        })
+    }
+});
 
 userRouter.get('/purchases' , (req , res) => {}); // USER PURCHASED COURSES!
 
