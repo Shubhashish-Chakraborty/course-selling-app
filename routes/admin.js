@@ -145,6 +145,32 @@ adminRouter.post('/create-course' , adminAuth , async (req , res) => { // Maybe 
 })
 
 
+adminRouter.put('/update-course' , adminAuth , async(req , res) => { // Admins can update there OWN created courses details!
+    
+    // HERE A VULNERABILITY IS PRESENT THAT IS: IF THE COURSE ID OF THE RESPECTIVE ADMIN NOT FOUND THEN ALSO IT IS SHOWING COURSE HAS BEEN UDPATED EVEN THOUGH IT IS NOT
+    // SO JUST TRY TO FIX THIS , MAYBE EXPLICITILY CHECK BEFORE QUERYING THE DATABASE.,... YK WHAT I MEAN
+    
+    //
+    //
+    
+    const adminId = req.adminId;
+    const { title , description , price , thumbnail , courseId } = req.body; // JSON Destructuring
+
+    const course = await CourseModel.updateOne({
+        _id: courseId,
+        adminId: adminId // CHECK NECCESSARY: DOES this course id belongs to this guy!
+    } , {
+            title: title,
+        description: description,
+        price: price,
+        thumbnail: thumbnail,
+    })
+
+    res.json({
+        msg: "Your Course has been updated!",
+    })
+})
+
 adminRouter.get('/created-courses' , adminAuth , async (req , res) => { // Admins can get back all the courses that they have created!
     const adminId = req.adminId;
 
