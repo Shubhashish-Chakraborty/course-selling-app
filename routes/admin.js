@@ -142,12 +142,19 @@ adminRouter.post('/create-course' , adminAuth , async (req , res) => { // Maybe 
         courseId: course._id,
         courseTitle: title
     })
-
-
 })
 
 
-adminRouter.get('/create')
+adminRouter.get('/created-courses' , adminAuth , async (req , res) => { // Admins can get back all the courses that they have created!
+    const adminId = req.adminId;
+
+    const courses = await CourseModel.find({ // ADmin id with this(adminId) get all the courses created!
+        adminId: adminId
+    })
+
+    res.json(courses);
+    
+})
 module.exports = {
     adminRouter: adminRouter
 }
