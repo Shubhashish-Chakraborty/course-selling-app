@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const { AdminModel } = require('../db');
+const { CourseModel } = require('../db');
 
 adminRouter.post('/signup', async (req, res) => {
     // Implementing ZOD for input valiadtion
@@ -121,7 +122,26 @@ adminRouter.post('/login', async (req, res) => {
     }
 });
 
+// Admins can create the course here!
+adminRouter.post('/create-course' , async (req , res) => { // Maybe implement input validation here, later
+    const adminId = req.adminId;
+    const { title , description , price , thumbnail } = req.body; // JSON Destructuring
 
+    const course = await CourseModel.create({
+        title: title,
+        description: description,
+        price: price,
+        thumbnail: thumbnail,
+        adminId: adminId
+    })
+
+    res.json({
+        msg: "New Course Has been created!",
+        courseId: course._id
+    })
+
+
+})
 module.exports = {
     adminRouter: adminRouter
 }
