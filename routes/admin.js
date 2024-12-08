@@ -2,9 +2,11 @@ const { Router } = require('express');
 const adminRouter = Router();
 const { z } = require("zod");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 const { AdminModel } = require('../db');
 
-adminRouter.post('/signup' , async (req , res) => {
+adminRouter.post('/signup', async (req, res) => {
     // Implementing ZOD for input valiadtion
 
     const requiredBody = z.object({
@@ -36,16 +38,16 @@ adminRouter.post('/signup' , async (req , res) => {
     // Error may occur because may be if the username/email already exists in the database, as {unique:true}
     let errorFound = false;
     try {
-        const hasedPassword = await bcrypt.hash(password , 10);
+        const hasedPassword = await bcrypt.hash(password, 10);
 
         await AdminModel.create({
             fullname: fullname,
             username: username,
             email: email,
             password: hasedPassword
-        })  
+        })
     }
-    catch(e) {
+    catch (e) {
         res.status(403).json({
             msg: "Email or username provided already Exists!",
         })
@@ -60,7 +62,64 @@ adminRouter.post('/signup' , async (req , res) => {
 });
 
 
-adminRouter.post('/login' , (req , res) => {});
+adminRouter.post('/login', async (req, res) => {
+    // Implementing ZOD for input valiadtion
+
+    const requiredBody = z.object({
+        username: z.string().min(3).max(10),
+        password: z.string().min(2).max(100)
+    });
+
+    // Parsing req.body
+
+    const parsedDataWithSuccess = requiredBody.safeParse(req.body);
+
+    if (!parsedDataWithSuccess.success) {
+        res.status(400).json({
+            msg: "Invalid Format!",
+            error: parsedDataWithSuccess.error.issues
+        })
+        return
+    }
+
+    // Uptill here input validation is done!
+
+    const username = req.body.username;
+    const password = req.body.password;
+
+    // Checking whether the admin exists in the database or not
+
+    const admin = await AdminModel.findOne({
+        username: username
+    });
+
+    if (!admin) { // If Admin Not found!
+        res.status(403).json({
+            msg: `Admin with Username:${username} does not exists in our database!`
+        })
+        return
+    }
+
+    const decryptedPassword = await bcrypt.compare(password , admin.password);
+
+    if (!decryptedPassword) { // If password doesnt matched!
+        res.status(403).json({
+            msg: "Admin not Found, Incorrect Credentials!"
+        }) 
+    }
+    else { // If admin found so allot the token and all logic
+        const token = jwt.sign({
+            id: admin._id.toString()
+        } , process.env.JWT_SECRET);
+
+        res.json({
+            msg: `${admin.username} successfully LoggedIN!!`,
+            username: admin.username,
+            email: admin.email,
+            token: token
+        })
+    }
+});
 
 
 module.exports = {
