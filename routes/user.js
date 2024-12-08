@@ -33,7 +33,7 @@ userRouter.post('/signup' , async (req , res) => {
     const password = req.body.password;
 
     let errorFound = false;
-    try { // Error may occur because may be if the username already exists in the database, as {unique:true}
+    try { // Error may occur because may be if the username/email already exists in the database, as {unique:true}
         const hashedPassword = await bcrypt.hash(password , 10);
     
         await UserModel.create({
