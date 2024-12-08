@@ -139,7 +139,8 @@ adminRouter.post('/create-course' , adminAuth , async (req , res) => { // Maybe 
 
     res.json({
         msg: "New Course Has been created!",
-        courseId: course._id
+        courseId: course._id,
+        courseTitle: title
     })
 
 
