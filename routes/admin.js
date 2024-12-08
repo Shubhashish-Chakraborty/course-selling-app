@@ -110,7 +110,7 @@ adminRouter.post('/login', async (req, res) => {
     else { // If admin found so allot the token and all logic
         const token = jwt.sign({
             id: admin._id.toString()
-        } , process.env.JWT_SECRET);
+        } , process.env.JWT_ADMIN_SECRET);
 
         res.json({
             msg: `${admin.username} successfully LoggedIN!!`,

@@ -100,7 +100,7 @@ userRouter.post('/login' , async (req , res) => {
     else { // IF user found -> allot a JWT and login
         const token = jwt.sign({
             id: user._id.toString()
-        } , process.env.JWT_SECRET);
+        } , process.env.JWT_USER_SECRET);
 
         res.json({
             msg: `${user.username} successfully LoggedIN!!`,
