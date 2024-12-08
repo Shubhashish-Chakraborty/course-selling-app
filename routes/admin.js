@@ -4,6 +4,8 @@ const { z } = require("zod");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const { adminAuth } = require("../middlewares/adminauth");
+
 const { AdminModel } = require('../db');
 const { CourseModel } = require('../db');
 
@@ -123,7 +125,7 @@ adminRouter.post('/login', async (req, res) => {
 });
 
 // Admins can create the course here!
-adminRouter.post('/create-course' , async (req , res) => { // Maybe implement input validation here, later
+adminRouter.post('/create-course' , adminAuth , async (req , res) => { // Maybe implement input validation here, later
     const adminId = req.adminId;
     const { title , description , price , thumbnail } = req.body; // JSON Destructuring
 
@@ -142,6 +144,9 @@ adminRouter.post('/create-course' , async (req , res) => { // Maybe implement in
 
 
 })
+
+
+adminRouter.get('/create')
 module.exports = {
     adminRouter: adminRouter
 }
