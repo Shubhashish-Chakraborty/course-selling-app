@@ -3,6 +3,9 @@ const { z } = require('zod');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { UserModel } = require('../db');
+const { userAuth } = require('../middlewares/userauth');
+const { PurchaseModel } = require('../db');
+const { CourseModel } = require('../db');
 
 const userRouter = Router();
 
@@ -111,7 +114,24 @@ userRouter.post('/login' , async (req , res) => {
     }
 });
 
-userRouter.get('/purchases' , (req , res) => {}); // USER PURCHASED COURSES!
+userRouter.get('/purchases' , userAuth , async (req , res) => { // USER PURCHASED COURSES!
+    const userId = req.userId;
+
+    const user = await UserModel.findOne({
+        _id: userId
+    })
+
+    const userPurchases = await PurchaseModel.find({
+        userId: userId
+    })
+
+    res.json({
+        username: user.username,
+        purchasedCourses: userPurchases
+    })
+
+
+}); 
 
 
 module.exports = {
